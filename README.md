@@ -43,8 +43,8 @@ const wallet = factory.createWallet();
 ### Addresses
 
 - MevWeth: `0x00000000008C43efC014746c230049e330039Cb3`
-- MevWalletV0 Implementation: `0x0000000000682f8e82d3B3b37200C830E86D2Ef9`
-- MevWalletV0 ProxyFactory: `0x8014eD5D5C44F6bdB699F1eDc7acA7E296eE7186`
+- MevWalletV0 Implementation: `0x00000000007Dcbd85Fc67915ad4bE7DAE266e268`
+- MevWalletV0 ProxyFactory: `0x385D9e104941e53fa73BBa3Ec3e9bAA4D1C5ad39`
 
 Didn't bother to grind an address for the proxy factory :)
 
