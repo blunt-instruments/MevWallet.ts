@@ -8,10 +8,10 @@ import {
   PopulatedTransaction,
   Signature,
   Signer,
-  utils,
+  utils as eutils,
 } from 'ethers';
 import { MevTx, MevWalletV0, MEV_TX_TYPES, SignedMevTx } from '.';
-import { serializeMevTx } from './utils';
+import * as utils from './utils';
 import { MevWalletV0Abi__factory } from './bindings';
 
 export const ERR_ALREADY_COMPLETE =
@@ -46,11 +46,29 @@ export class MevTxBuilder {
   constructor(
     wallet: string,
     provider: ethers.providers.Provider,
-    tx?: Partial<MevTx>,
+    tx?: Partial<MevTx> | string,
   ) {
     this._provider = provider;
     this._wallet = MevWalletV0Abi__factory.connect(wallet, provider);
-    this._tx = tx ?? {};
+
+    if (typeof tx === 'string') {
+      const parsed = JSON.parse(tx);
+      this._tx = utils.deserializePartial(parsed);
+      if (this.missingKeys().length === 0 && utils.hasSig(parsed)) {
+        this._signed = parsed;
+        this._built = parsed as MevTx;
+        this._sig = { v: parsed.v, r: parsed.r, s: parsed.s } as Signature;
+      }
+    } else {
+      this._tx = tx ?? {};
+    }
+  }
+
+  private setTiming() {
+    const nb = this.notBefore ?? BigNumber.from(0);
+    const dl = this.deadline ?? BigNumber.from(0);
+
+    this._tx.timing = nb.shl(64).or(dl);
   }
 
   public get to(): string | undefined {
@@ -107,13 +125,6 @@ export class MevTxBuilder {
     this._tx.maxBaseFee = value;
   }
 
-  private setTiming() {
-    const nb = this.notBefore ?? BigNumber.from(0);
-    const dl = this.deadline ?? BigNumber.from(0);
-
-    this._tx.timing = nb.shl(64).or(dl);
-  }
-
   public get notBefore(): BigNumber | undefined {
     return this._notBefore;
   }
@@ -161,21 +172,7 @@ export class MevTxBuilder {
   }
 
   missingKeys(): ReadonlyArray<string> {
-    const keys = [];
-    if (!('to' in this._tx) || this._tx.to === undefined) keys.push('to');
-    if (!('data' in this._tx) || this._tx.data === undefined) keys.push('data');
-    if (!('value' in this._tx) || this._tx.value === undefined)
-      keys.push('value');
-    if (!('delegate' in this._tx) || this._tx.delegate === undefined)
-      keys.push('delegate');
-    if (!('tip' in this._tx) || this._tx.tip === undefined) keys.push('tip');
-    if (!('maxBaseFee' in this._tx) || this._tx.maxBaseFee === undefined)
-      keys.push('maxBaseFee');
-    if (!('timing' in this._tx) || this._tx.timing === undefined)
-      keys.push('timing');
-    if (!('nonce' in this._tx) || this._tx.nonce === undefined)
-      keys.push('nonce');
-    return keys;
+    return utils.missingKeys(this._tx);
   }
 
   async populateBaseFee(): Promise<void> {
@@ -221,7 +218,7 @@ export class MevTxBuilder {
     if (!this.value) this.value = BigNumber.from(0);
     if (!this.delegate) this.delegate = false;
     // TODO: determine a reasonable value
-    if (!this.tip) this.tip = utils.parseUnits('1000', 'gwei');
+    if (!this.tip) this.tip = eutils.parseUnits('1000', 'gwei');
 
     await Promise.all([
       this.populateBaseFee(),
@@ -231,8 +228,9 @@ export class MevTxBuilder {
 
     const missing = this.missingKeys();
     if (missing.length != 0) {
-      throw new Error(
-        `Tx Not Populated. Missing keys: [${missing.join(', ')}]`,
+      throw new utils.MissingKeys(
+        missing,
+        'Attempted to sign a transaction that is not fully populated.',
       );
     }
 
@@ -280,9 +278,9 @@ export class MevTxBuilder {
       throw new Error(`Wrong Signer. Got ${signerAddr}, needed ${sender}`);
     const domain = domainFor(await signer.getChainId(), this.wallet);
     const signature = await signer._signTypedData(domain, MEV_TX_TYPES, tx);
-    if (!this._sig) this._sig = utils.splitSignature(signature);
+    if (!this._sig) this._sig = eutils.splitSignature(signature);
 
-    const ser = serializeMevTx(tx) as SignedMevTx;
+    const ser = utils.serialize(tx) as SignedMevTx;
     ser.v = this._sig.v;
     ser.r = this._sig.r;
     ser.s = this._sig.s;
@@ -344,11 +342,6 @@ export class MevTxBuilder {
       ).chainId,
       this.wallet,
     );
-    return ethers.utils.verifyTypedData(
-      domain,
-      MEV_TX_TYPES,
-      this._tx,
-      this._sig,
-    );
+    return eutils.verifyTypedData(domain, MEV_TX_TYPES, this._tx, this._sig);
   }
 }
