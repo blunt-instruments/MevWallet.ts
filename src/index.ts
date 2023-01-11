@@ -18,9 +18,9 @@ export * as utils from './utils';
 
 export const MEV_WETH_ADDRESS = '0x00000000008C43efC014746c230049e330039Cb3';
 export const MEV_WALLET_IMPL_ADDRESS =
-  '0x00000000007Dcbd85Fc67915ad4bE7DAE266e268';
+  '0x00000000008EaBBE9A46Fa87F0d1e41e62A96d50';
 export const MEV_WALLET_FACTORY_ADDRESS =
-  '0x385D9e104941e53fa73BBa3Ec3e9bAA4D1C5ad39';
+  '0x444544a54b5193Ba6D1A3Cf9c83Ee12422b6A824';
 
 export const MEV_TX_TYPES: Record<string, Array<ethers.TypedDataField>> = {
   MevTx: [
