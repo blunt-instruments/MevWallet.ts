@@ -10,9 +10,9 @@ import {
   Signer,
   utils as eutils,
 } from 'ethers';
-import { MevTx, MevWalletV0, MEV_TX_TYPES, SignedMevTx } from '.';
+import { MevTx, MevWalletV1, MEV_TX_TYPES, SignedMevTx } from '.';
 import * as utils from './utils';
-import { MevWalletV0Abi__factory } from './bindings';
+import { MevWalletV1Abi__factory } from './bindings';
 
 export const ERR_ALREADY_COMPLETE =
   'Tx has been built. Further modifications not permitted.';
@@ -41,7 +41,7 @@ export class MevTxBuilder {
   private _notBefore?: ethers.BigNumber;
   private _deadline?: ethers.BigNumber;
   private _provider: ethers.providers.Provider;
-  private _wallet: MevWalletV0;
+  private _wallet: MevWalletV1;
 
   constructor(
     wallet: string,
@@ -49,7 +49,7 @@ export class MevTxBuilder {
     tx?: Partial<MevTx> | string,
   ) {
     this._provider = provider;
-    this._wallet = MevWalletV0Abi__factory.connect(wallet, provider);
+    this._wallet = MevWalletV1Abi__factory.connect(wallet, provider);
 
     if (typeof tx === 'string') {
       const parsed = JSON.parse(tx);
@@ -159,7 +159,7 @@ export class MevTxBuilder {
   }
 
   public set wallet(value: string) {
-    this._wallet = MevWalletV0Abi__factory.connect(value, this.provider);
+    this._wallet = MevWalletV1Abi__factory.connect(value, this.provider);
   }
 
   public get provider(): ethers.providers.Provider {
@@ -168,7 +168,7 @@ export class MevTxBuilder {
 
   public set provider(value: ethers.providers.Provider) {
     this._provider = value;
-    this._wallet = MevWalletV0Abi__factory.connect(this._wallet.address, value);
+    this._wallet = MevWalletV1Abi__factory.connect(this._wallet.address, value);
   }
 
   missingKeys(): ReadonlyArray<string> {

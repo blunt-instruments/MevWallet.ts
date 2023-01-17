@@ -2,14 +2,14 @@ import * as ethers from 'ethers';
 
 export { MevTxBuilder } from './builder';
 export type {
-  MevWalletV0Abi as MevWalletV0,
+  MevWalletV1Abi as MevWalletV1,
   MevWethAbi as MevWeth,
-  MevWalletFactoryV0Abi as MevWalletFactoryV0,
+  MevWalletFactoryV1Abi as MevWalletFactoryV1,
 } from './bindings';
 export {
-  MevWalletV0Abi__factory as MevWalletV0__factory,
+  MevWalletV1Abi__factory as MevWalletV1__factory,
   MevWethAbi__factory as MevWeth__factory,
-  MevWalletFactoryV0Abi__factory as MevWalletFactory__factory,
+  MevWalletFactoryV1Abi__factory as MevWalletFactory__factory,
 } from './bindings';
 
 export { getFactory } from './deploy';
