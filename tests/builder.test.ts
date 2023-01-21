@@ -18,7 +18,7 @@ const PROVIDER = new ethers.providers.StaticJsonRpcProvider(
 
 const SIGNER = new ethers.Wallet(KEY, PROVIDER);
 
-const MEV_WALLET_ADDR = '0x8eff6a210919460527d7eebd1a4b8639a281af0b';
+const MEV_WALLET_ADDR = '0xf12cf18103fe766f2d1981ea5cf309cc37b04969';
 const SIGNER_ADDR = '0xf39fd6e51aad88f6f4ce6ab8827279cfffb92266';
 
 // const WALLET: MevWalletV0 = MevWalletV0__factory.connect(MEV_WALLET_ADDR, SIGNER);
