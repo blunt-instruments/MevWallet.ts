@@ -3,13 +3,11 @@ import { describe, expect, it } from '@jest/globals';
 import * as ethers from 'ethers';
 
 import {
-  // MevWalletV0__factory,
   MevWeth__factory,
   MEV_WETH_ADDRESS,
-  // MevWalletV0,
   MevWeth,
   MevTxBuilder,
-} from '..';
+} from '../src';
 
 const KEY = 'ac0974bec39a17e36ba4a6b4d238ff944bacb478cbed5efcae784d7bf4f2ff80';
 const PROVIDER = new ethers.providers.StaticJsonRpcProvider(
@@ -24,8 +22,8 @@ const SIGNER_ADDR = '0xf39fd6e51aad88f6f4ce6ab8827279cfffb92266';
 // const WALLET: MevWalletV0 = MevWalletV0__factory.connect(MEV_WALLET_ADDR, SIGNER);
 const MEV_WETH: MevWeth = MevWeth__factory.connect(MEV_WETH_ADDRESS, SIGNER);
 
-describe('Builder', () => {
-  it('does something', async () => {
+describe('Wallet Builder', () => {
+  it('create MEV transaction', async () => {
     expect(SIGNER.address.toLowerCase()).toMatch(SIGNER_ADDR.toLowerCase());
 
     const preBalance = await MEV_WETH.balanceOf(MEV_WALLET_ADDR);
